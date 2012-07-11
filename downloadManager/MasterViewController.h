@@ -7,9 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "progressCell.h"
 @class DetailViewController;
 
-@interface MasterViewController : UITableViewController
+@interface MasterViewController : UITableViewController <progressCellDelegate>
 
 @property (strong, nonatomic) DetailViewController *detailViewController;
 
