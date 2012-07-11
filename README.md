@@ -51,9 +51,9 @@ inb .m file
 	
 Delegate Methods are required
 
-	-(void)progressCellDownloadProgress:(float)progress Percentage:(NSInteger)percentage ProgressCell:(progressCell*)cell;
-	-(void)progressCellDownloadFinished:(NSData*)fileData ProgressCell:(progressCell*)cell;
-	-(void)progressCellDownloadFail:(NSError*)error ProgressCell:(progressCell*)cell;
+	-(void)SGDownloadProgress:(float)progress Percentage:(NSInteger)percentage;
+	-(void)SGDownloadFinished:(NSData*)fileData;
+	-(void)SGDownloadFail:(NSError*)error;
 	
 	
 
