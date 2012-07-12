@@ -7,9 +7,23 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "SGdownloader.h"
 
-@interface progressCell : UITableViewCell
+@class progressCell;
+@protocol progressCellDelegate<NSObject>
+@required
+-(void)progressCellDownloadProgress:(float)progress Percentage:(NSInteger)percentage ProgressCell:(progressCell*)cell;
+-(void)progressCellDownloadFinished:(NSData*)fileData ProgressCell:(progressCell*)cell;
+-(void)progressCellDownloadFail:(NSError*)error ProgressCell:(progressCell*)cell; 
+@end
+
+
+
+@interface progressCell : UITableViewCell <SGdownloaderDelegate>
 @property (nonatomic,retain) NSData* downloadedData;
+@property (nonatomic,strong) id<progressCellDelegate> delegate;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier downloadURL:(NSURL*)url;
+
+-(void)startWithDelegate:(id<progressCellDelegate>)delegate;
 @end

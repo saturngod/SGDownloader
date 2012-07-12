@@ -14,6 +14,15 @@ typedef void (^SGDownloadProgressBlock)(float progressValue,NSInteger percentage
 typedef void (^SGDowloadFinished)(NSData* fileData);
 typedef void (^SGDownloadFailBlock)(NSError*error);
 
+
+@protocol SGdownloaderDelegate <NSObject>
+
+@required
+-(void)SGDownloadProgress:(float)progress Percentage:(NSInteger)percentage;
+-(void)SGDownloadFinished:(NSData*)fileData;
+-(void)SGDownloadFail:(NSError*)error;
+@end
+
 @interface SGdownloader : NSObject <NSURLConnectionDataDelegate>
 
 //properties
@@ -21,9 +30,12 @@ typedef void (^SGDownloadFailBlock)(NSError*error);
 @property (nonatomic,readonly) NSInteger downloadedPercentage;
 @property (nonatomic,readonly) float progress;
 
+@property (nonatomic,strong) id<SGdownloaderDelegate>delegate;
 //initwith file URL and timeout
--(id)initWithURL:(NSURL *)fileURL timeout:(NSInteger)timeout onDownloading:(SGDownloadProgressBlock)progressBlock onFinished:(SGDowloadFinished)finishedBlock onFial:(SGDownloadFailBlock)failBlock;
+-(id)initWithURL:(NSURL *)fileURL timeout:(NSInteger)timeout;
 
--(void)start;
+-(void)startWithDownloading:(SGDownloadProgressBlock)progressBlock onFinished:(SGDowloadFinished)finishedBlock onFail:(SGDownloadFailBlock)failBlock;
+
+-(void)startWithDelegate:(id<SGdownloaderDelegate>)delegate;
 -(void)cancel;
 @end

@@ -11,8 +11,10 @@
 #import "DetailViewController.h"
 #import "progressCell.h"
 
+#define DELETE_DONE 0
+
 @interface MasterViewController () {
-    NSArray *toDownloadFiles;
+    NSMutableArray *toDownloadFiles;
 }
 @end
 
@@ -35,7 +37,7 @@
 	// Do any additional setup after loading the view, typically from a nib.
 
     
-    toDownloadFiles = [[NSArray alloc] initWithObjects:@"http://www.hollywooddesktop.com/w/actresses/1920x1200/jennifer_aniston-010-1920x1200-hollywooddesktop.jpg",@"http://www.hollywooddesktop.com/w/actresses/1920x1200/jennifer_aniston-009-1920x1200-hollywooddesktop.jpg",@"http://www.hollywooddesktop.com/w/musicians/2560x1600/katy_perry-009-2560x1600-hollywooddesktop.jpg",@"http://www.hollywooddesktop.com/w/musicians/2560x1600/katy_perry-008-2560x1600-hollywooddesktop.jpg",@"http://www.hollywooddesktop.com/w/musicians/2560x1600/katy_perry-007-2560x1600-hollywooddesktop.jpg",@"http://www.hollywooddesktop.com/wallpaper/musicians/1920x1200/katy_perry-001-1920x1200-hollywooddesktop.jpg",@"http://www.hollywooddesktop.com/w/actresses/2560x1600/kristen_stewart-009-2560x1600-hollywooddesktop.jpg",@"http://www.hollywooddesktop.com/w/musicians/1920x1200/taylor_swift-014-1920x1200-hollywooddesktop.jpg",@"http://www.hollywooddesktop.com/w/musicians/2560x1600/taylor_swift-011-2560x1600-hollywooddesktop.jpg",@"http://www.hollywooddesktop.com/wallpaper/musicians/2560x1600/taylor_swift-006-2560x1600-hollywooddesktop.jpg",nil];
+    toDownloadFiles = [[NSMutableArray alloc] initWithObjects:@"http://www.hollywooddesktop.com/w/actresses/1920x1200/jennifer_aniston-010-1920x1200-hollywooddesktop.jpg",@"http://www.hollywooddesktop.com/w/actresses/1920x1200/jennifer_aniston-009-1920x1200-hollywooddesktop.jpg",@"http://www.hollywooddesktop.com/w/musicians/2560x1600/katy_perry-009-2560x1600-hollywooddesktop.jpg",@"http://www.hollywooddesktop.com/w/musicians/2560x1600/katy_perry-008-2560x1600-hollywooddesktop.jpg",@"http://www.hollywooddesktop.com/w/musicians/2560x1600/katy_perry-007-2560x1600-hollywooddesktop.jpg",@"http://www.hollywooddesktop.com/wallpaper/musicians/1920x1200/katy_perry-001-1920x1200-hollywooddesktop.jpg",@"http://www.hollywooddesktop.com/w/actresses/2560x1600/kristen_stewart-009-2560x1600-hollywooddesktop.jpg",@"http://www.hollywooddesktop.com/w/musicians/1920x1200/taylor_swift-014-1920x1200-hollywooddesktop.jpg",@"http://www.hollywooddesktop.com/w/musicians/2560x1600/taylor_swift-011-2560x1600-hollywooddesktop.jpg",@"http://www.hollywooddesktop.com/wallpaper/musicians/2560x1600/taylor_swift-006-2560x1600-hollywooddesktop.jpg",nil];
 }
 
 - (void)viewDidUnload
@@ -71,10 +73,11 @@
     progressCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
         cell = [[progressCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier downloadURL:[NSURL URLWithString:[toDownloadFiles objectAtIndex:indexPath.row]]];
-        
+
+        [cell startWithDelegate:self];
     }
 
-   
+    
     
     return cell;
 }
@@ -100,4 +103,26 @@
     }
 }
 
+
+#pragma mark - progressCell
+-(void)progressCellDownloadProgress:(float)progress Percentage:(NSInteger)percentage ProgressCell:(progressCell *)cell{
+    
+    cell.textLabel.text = [NSString stringWithFormat:@"%d %%",percentage];
+    
+}
+-(void)progressCellDownloadFinished:(NSData*)fileData ProgressCell:(progressCell *)cell{
+    
+    if(DELETE_DONE) {
+        NSIndexPath* indexPath = [self.tableView indexPathForCell:cell];
+        [toDownloadFiles removeObjectAtIndex:indexPath.row];
+
+        [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationRight];
+    }
+    else {
+        cell.textLabel.text = @"Finished";
+    }
+}
+-(void)progressCellDownloadFail:(NSError*)error ProgressCell:(progressCell *)cell{
+    
+}
 @end

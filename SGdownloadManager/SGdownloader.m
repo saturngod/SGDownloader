@@ -31,8 +31,9 @@
 @synthesize progressFailBlock = _progressFailBlock;
 @synthesize progressDownloadBlock = _progressDownloadBlock;
 @synthesize progressFinishBlock = _progressFinishBlock;
+@synthesize delegate = _delegate;
 
--(id)initWithURL:(NSURL *)fileURL timeout:(NSInteger)timeout onDownloading:(SGDownloadProgressBlock)progressBlock onFinished:(SGDowloadFinished)finishedBlock onFial:(SGDownloadFailBlock)failBlock {
+-(id)initWithURL:(NSURL *)fileURL timeout:(NSInteger)timeout{
     
     
     self = [super init];
@@ -48,9 +49,7 @@
         
         self.connection = [[NSURLConnection alloc] initWithRequest:self.request delegate:self startImmediately:NO];
         
-        _progressDownloadBlock = [progressBlock copy];
-        _progressFinishBlock = [finishedBlock copy];
-        _progressFailBlock = [failBlock copy];
+
         
     }
     
@@ -69,14 +68,30 @@
         _progress = ((receiveBytes/(float)exceptedBytes) * 100)/100;
         _downloadedPercentage = _progress * 100;
         
-        _progressDownloadBlock(_progress,_downloadedPercentage);
+        if([_delegate respondsToSelector:@selector(SGDownloadProgress:Percentage:)])
+        {
+            [_delegate SGDownloadProgress:_progress Percentage:_downloadedPercentage];
+        }
+        else {
+            if(_progressDownloadBlock) {
+                _progressDownloadBlock(_progress,_downloadedPercentage);
+            }
+        }
     }
     
 }
 
 -(void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
     //return back error
-    _progressFailBlock(error);
+    if([_delegate respondsToSelector:@selector(SGDownloadFail:)])
+    {
+        [_delegate SGDownloadFail:error];
+    }
+    else {
+        if(_progressFailBlock) {
+            _progressFailBlock(error);
+        }
+    }
 }
 
 -(void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
@@ -85,13 +100,35 @@
 
 -(void)connectionDidFinishLoading:(NSURLConnection *)connection {
     self.connection = nil;
-    _progressFinishBlock(_receiveData);
+    
+    if([_delegate respondsToSelector:@selector(SGDownloadFinished:)])
+    {
+        [_delegate SGDownloadFinished:_receiveData];
+    }
+    else {
+        if(_progressFinishBlock) {
+            _progressFinishBlock(_receiveData);
+        }
+    }
 }
 
 #pragma mark - properties
--(void)start {
+-(void)startWithDelegate:(id<SGdownloaderDelegate>)delegate {
+    _delegate = delegate;
     if(self.connection) {
         [self.connection start];
+        _progressDownloadBlock= nil;
+        _progressFinishBlock = nil;
+        _progressFailBlock = nil;
+    }
+}
+-(void)startWithDownloading:(SGDownloadProgressBlock)progressBlock onFinished:(SGDowloadFinished)finishedBlock onFail:(SGDownloadFailBlock)failBlock {
+    if(self.connection) {
+        [self.connection start];
+        _delegate = nil; //clear delegate
+        _progressDownloadBlock = [progressBlock copy];
+        _progressFinishBlock = [finishedBlock copy];
+        _progressFailBlock = [failBlock copy];
     }
     
 }
