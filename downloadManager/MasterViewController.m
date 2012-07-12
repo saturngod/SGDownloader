@@ -96,7 +96,6 @@
     
     if(cell.downloadedData!=nil) {
         self.detailViewController.imageData = cell.downloadedData;
-        
         [self.navigationController pushViewController:self.detailViewController animated:YES];
     }
 }
