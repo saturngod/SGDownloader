@@ -20,7 +20,8 @@
 
 
 @interface progressCell : UITableViewCell <SGdownloaderDelegate>
-@property (nonatomic,retain) NSData* downloadedData;
+@property (nonatomic,readonly) NSData *downloadedData;
+@property (nonatomic,readonly) NSURL *downloadURL;
 @property (nonatomic,strong) id<progressCellDelegate> delegate;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier downloadURL:(NSURL*)url;

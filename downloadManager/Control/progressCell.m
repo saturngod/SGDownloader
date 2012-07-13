@@ -17,6 +17,7 @@
 @synthesize download = _download;
 @synthesize progressV = _progressV;
 @synthesize delegate = _delegate;
+@synthesize downloadURL = _downloadURL;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier downloadURL:(NSURL*)url {
     
@@ -27,7 +28,7 @@
         self.textLabel.text = @"0%";
         self.accessoryView = _progressV;
         _downloadedData = nil;
-        
+        _downloadURL = url;
         _download = [[SGdownloader alloc] initWithURL:url timeout:60];
         
     }
@@ -49,6 +50,7 @@
 }
 #pragma mark - DownloadProcess
 -(void)SGDownloadProgress:(float)progress Percentage:(NSInteger)percentage {
+    
     _progressV.progress = progress;
     
     if([_delegate respondsToSelector:@selector(progressCellDownloadProgress:Percentage:ProgressCell:)]) {
@@ -58,6 +60,8 @@
 }
 -(void)SGDownloadFinished:(NSData*)fileData {
 
+    _downloadedData = fileData;
+    
     if([_delegate respondsToSelector:@selector(progressCellDownloadFinished:ProgressCell:)])
     {
         [_delegate progressCellDownloadFinished:fileData ProgressCell:self];
