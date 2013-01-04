@@ -37,7 +37,7 @@
 	// Do any additional setup after loading the view, typically from a nib.
 
     
-    toDownloadFiles = [[NSMutableArray alloc] initWithObjects:@"http://www.hollywooddesktop.com/w/actresses/1920x1200/jennifer_aniston-010-1920x1200-hollywooddesktop.jpg",@"http://www.hollywooddesktop.com/w/actresses/1920x1200/jennifer_aniston-009-1920x1200-hollywooddesktop.jpg",@"http://www.hollywooddesktop.com/w/musicians/2560x1600/katy_perry-009-2560x1600-hollywooddesktop.jpg",@"http://www.hollywooddesktop.com/w/musicians/2560x1600/katy_perry-008-2560x1600-hollywooddesktop.jpg",@"http://www.hollywooddesktop.com/w/musicians/2560x1600/katy_perry-007-2560x1600-hollywooddesktop.jpg",@"http://www.hollywooddesktop.com/wallpaper/musicians/1920x1200/katy_perry-001-1920x1200-hollywooddesktop.jpg",@"http://www.hollywooddesktop.com/w/actresses/2560x1600/kristen_stewart-009-2560x1600-hollywooddesktop.jpg",@"http://www.hollywooddesktop.com/w/musicians/1920x1200/taylor_swift-014-1920x1200-hollywooddesktop.jpg",@"http://www.hollywooddesktop.com/w/musicians/2560x1600/taylor_swift-011-2560x1600-hollywooddesktop.jpg",@"http://www.hollywooddesktop.com/wallpaper/musicians/2560x1600/taylor_swift-006-2560x1600-hollywooddesktop.jpg",nil];
+    toDownloadFiles = [[NSMutableArray alloc] initWithObjects:@"http://www.lubpedia.com/wp-content/uploads/2012/10/3d-hd-wallpapers-31.jpg",@"http://thesmashable.com/wp-content/uploads/2012/06/Madagascar-3-movie-2012-Alex-The-Lion-HD-Wallpaper-71.jpg",@"http://www.acgart.com/var/albums/Super%20Mario%20Bros%20HD%20wallpapers%201920x1200/Super%20Mario%20Bros%20HD%20wallpapers%201920x1200%20(06).jpg?m=1349430155",@"http://slowbuddy.com/wp-content/gallery/hd-backgrounds/z17-color_born_hd_wallpaper_by_3d_xtrinity1.jpg",@"http://www.xitclub.com/attachments/wallpapers-314/11272d1333836579-wide-screen-*hd*-wallpapers-collection-33.jpg",@"http://newevolutiondesigns.com/images/freebies/hd-wallpaper-40.jpg",@"http://newevolutiondesigns.com/images/freebies/hd-wallpaper-6.jpg",nil];
 }
 
 - (void)viewDidUnload
@@ -100,6 +100,20 @@
     if(cell.downloadedData!=nil) {
         self.detailViewController.imageData = cell.downloadedData;
         [self.navigationController pushViewController:self.detailViewController animated:YES];
+    }
+    else
+    {
+        if(cell.pause)
+        {
+            [cell downloadResume];
+        }
+        else
+        {
+            if([cell isAllowResume]) {
+                [cell downloadPause];
+            }
+            
+        }
     }
 }
 

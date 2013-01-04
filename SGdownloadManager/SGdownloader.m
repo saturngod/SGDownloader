@@ -10,8 +10,10 @@
 @interface SGdownloader()
 @property (nonatomic,assign) float receiveBytes;
 @property (nonatomic,assign) float exceptedBytes;
-@property (nonatomic,strong) NSURLRequest *request;
+@property (nonatomic,assign) NSInteger tmpTimeout;
+@property (nonatomic,strong) NSMutableURLRequest *request;
 @property (nonatomic,strong) NSURLConnection *connection;
+@property (nonatomic,assign) BOOL resumeProgress;
 
 //for block
 @property (nonatomic,strong) SGDownloadProgressBlock progressDownloadBlock;
@@ -32,6 +34,9 @@
 @synthesize progressDownloadBlock = _progressDownloadBlock;
 @synthesize progressFinishBlock = _progressFinishBlock;
 @synthesize delegate = _delegate;
+@synthesize resumeProgress = _resumeProgress;
+@synthesize allowResume = _allowResume;
+@synthesize fileName = _fileName;
 
 -(id)initWithURL:(NSURL *)fileURL timeout:(NSInteger)timeout{
     
@@ -44,12 +49,14 @@
         self.exceptedBytes = 0;
         _receiveData = [[NSMutableData alloc] initWithLength:0];
         _downloadedPercentage = 0.0f;
-        self.request = [[NSURLRequest alloc] initWithURL:fileURL cachePolicy:NSURLRequestReturnCacheDataElseLoad timeoutInterval:timeout];
-    
+        self.request = [[NSMutableURLRequest alloc] initWithURL:fileURL cachePolicy:NSURLRequestReturnCacheDataElseLoad timeoutInterval:timeout];
+        self.tmpTimeout = timeout;
+        
+        self.resumeProgress = NO;//for exceptedBytes trigger
         
         self.connection = [[NSURLConnection alloc] initWithRequest:self.request delegate:self startImmediately:NO];
         
-
+        _allowResume = NO;//check server is allow resume
         
     }
     
@@ -95,7 +102,19 @@
 }
 
 -(void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
-    exceptedBytes = [response expectedContentLength];
+    if(!self.resumeProgress) {
+        exceptedBytes = [response expectedContentLength];
+    }
+    _fileName =[response suggestedFilename];
+
+    NSDictionary* headers = [(NSHTTPURLResponse *)response allHeaderFields];
+    if ([headers objectForKey:@"Accept-Ranges"]) {
+        _allowResume = YES;
+    }
+    else
+    {
+        _allowResume = NO;
+    }
 }
 
 -(void)connectionDidFinishLoading:(NSURLConnection *)connection {
@@ -107,7 +126,7 @@
     }
     else {
         if(_progressFinishBlock) {
-            _progressFinishBlock(_receiveData);
+            _progressFinishBlock(_receiveData,_fileName);
         }
     }
 }
@@ -122,6 +141,30 @@
         _progressFailBlock = nil;
     }
 }
+
+-(void)pause
+{
+    [self.connection cancel];
+}
+
+-(void)resume
+{
+    //add range for resume but some of the server didn't support resume
+    NSString *range = @"bytes=";
+    range = [range stringByAppendingString:[[NSNumber numberWithInt:self.receiveBytes] stringValue]];
+    range = [range stringByAppendingString:@"-"];
+    NSURL* fileURL = self.request.URL.absoluteURL;
+    
+    self.resumeProgress = YES;//add trigger for except exceptedBytes
+    
+    
+    self.request = [[NSMutableURLRequest alloc] initWithURL:fileURL cachePolicy:NSURLRequestReturnCacheDataElseLoad timeoutInterval:self.tmpTimeout];
+    
+    [self.request setValue:range forHTTPHeaderField:@"Range"];
+    
+    self.connection = [[NSURLConnection alloc] initWithRequest:self.request delegate:self startImmediately:YES];
+}
+
 -(void)startWithDownloading:(SGDownloadProgressBlock)progressBlock onFinished:(SGDowloadFinished)finishedBlock onFail:(SGDownloadFailBlock)failBlock {
     if(self.connection) {
         [self.connection start];
@@ -135,6 +178,10 @@
 -(void)cancel {
     if(self.connection) {
         [self.connection cancel];
+        self.receiveBytes = 0;
+        self.exceptedBytes = 0;
+        _receiveData = [[NSMutableData alloc] initWithLength:0];
+        _downloadedPercentage = 0.0f;
     }
 }
 @end

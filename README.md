@@ -2,7 +2,7 @@ SGdownloader is a small library for downloading file. It supported
 
 * Block
 * Delegate
-* Arc
+* ARC
 
 You can use Block or Delegate for downloading the file. If you are using with TableView, you should use Delegate instead of Block.
 
@@ -28,7 +28,7 @@ to your project.
 		//progress for progress bar
 		//percentage for download percentage
 		
-	} onFinished:(NSData* fileData){
+	} onFinished:(NSData* fileData,NSString* fileName){
 		
 		//use NSData to write a file or image
 		
@@ -38,12 +38,12 @@ to your project.
 	
 	}];
 	
-##for using Delegate
+###for using Delegate
 put SGdownloader delegate at .h file
 
 	@interface progressCell : UITableViewCell <SGdownloaderDelegate>
 	
-inb .m file
+in .m file
 	
 	SGdownloader *downloader = [[SGdownloader alloc] initWithURL:[NSURL URLWithString:@"http://myfile.com/file.jpg"] timeout:60];
 	
@@ -60,4 +60,18 @@ Delegate Methods are required
 
 ##Todo
 
-* pause and resume
+* allow concurrent download and resume for 1 file (make like download manager)
+
+#Example
+
+check downloadManager.xcodeproj . All the downloading images are using from google search result. It is using for testing purporse only.
+
+##Log
+
+###Version 0.2
+ 
+ - Allow Pause and Resume
+ 
+###Version 0.1
+ 
+ - Allow Download with Progress

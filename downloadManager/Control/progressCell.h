@@ -23,8 +23,12 @@
 @property (nonatomic,readonly) NSData *downloadedData;
 @property (nonatomic,readonly) NSURL *downloadURL;
 @property (nonatomic,strong) id<progressCellDelegate> delegate;
+@property (nonatomic,assign) BOOL pause;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier downloadURL:(NSURL*)url;
 
 -(void)startWithDelegate:(id<progressCellDelegate>)delegate;
+-(void)downloadPause;
+-(void)downloadResume;
+-(BOOL)isAllowResume;
 @end

@@ -18,6 +18,7 @@
 @synthesize progressV = _progressV;
 @synthesize delegate = _delegate;
 @synthesize downloadURL = _downloadURL;
+@synthesize pause = _pause;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier downloadURL:(NSURL*)url {
     
@@ -29,6 +30,7 @@
         self.accessoryView = _progressV;
         _downloadedData = nil;
         _downloadURL = url;
+        _pause = NO;
         _download = [[SGdownloader alloc] initWithURL:url timeout:60];
         
     }
@@ -40,6 +42,17 @@
 {
     _delegate = delegate;
     [_download startWithDelegate:self];
+}
+
+-(void)downloadPause {
+    [_download pause];
+    self.textLabel.text = @"Pause";
+    self.pause = YES;
+}
+-(void)downloadResume {
+    [_download resume];
+    self.textLabel.text = @"Resume...";
+    self.pause = NO;
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated
@@ -75,5 +88,10 @@
         [_delegate progressCellDownloadFail:error ProgressCell:self];
     }
     
+}
+
+-(BOOL)isAllowResume
+{
+    return _download.allowResume;
 }
 @end
