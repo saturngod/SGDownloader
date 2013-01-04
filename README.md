@@ -60,7 +60,7 @@ Delegate Methods are required
 
 ##Todo
 
-* allow concurrent download and resume for 1 file (make like download manager)
+* allow 1-5 concurrent download for 1 file (like download manager)
 
 #Example
 
