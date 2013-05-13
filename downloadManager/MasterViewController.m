@@ -11,7 +11,6 @@
 #import "DetailViewController.h"
 #import "progressCell.h"
 
-#define DELETE_DONE 0
 
 @interface MasterViewController () {
     NSMutableArray *toDownloadFiles;
@@ -37,7 +36,7 @@
 	// Do any additional setup after loading the view, typically from a nib.
 
     
-    toDownloadFiles = [[NSMutableArray alloc] initWithObjects:@"http://www.lubpedia.com/wp-content/uploads/2012/10/3d-hd-wallpapers-31.jpg",@"http://thesmashable.com/wp-content/uploads/2012/06/Madagascar-3-movie-2012-Alex-The-Lion-HD-Wallpaper-71.jpg",@"http://www.acgart.com/var/albums/Super%20Mario%20Bros%20HD%20wallpapers%201920x1200/Super%20Mario%20Bros%20HD%20wallpapers%201920x1200%20(06).jpg?m=1349430155",@"http://slowbuddy.com/wp-content/gallery/hd-backgrounds/z17-color_born_hd_wallpaper_by_3d_xtrinity1.jpg",@"http://www.xitclub.com/attachments/wallpapers-314/11272d1333836579-wide-screen-*hd*-wallpapers-collection-33.jpg",@"http://newevolutiondesigns.com/images/freebies/hd-wallpaper-40.jpg",@"http://newevolutiondesigns.com/images/freebies/hd-wallpaper-6.jpg",nil];
+    toDownloadFiles = [[NSMutableArray alloc] initWithObjects:@"http://localhost/img/Slice 1.png",@"http://localhost/img/Slice 2.png",@"http://localhost/img/Slice 3.png",@"http://localhost/img/Slice 4.png",@"http://localhost/img/Slice 5.png",@"http://localhost/img/Slice 6.png",@"http://localhost/img/Slice 7.png",@"http://localhost/img/Slice 8.png",@"http://localhost/img/Slice 9.png",@"http://localhost/img/Slice 10.png",@"http://localhost/img/Slice 11.png",@"http://localhost/img/Slice 12.png",nil];
 }
 
 - (void)viewDidUnload
@@ -68,11 +67,11 @@
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    static NSString *CellIdentifier = @"Cell";
+    NSString *CellIdentifier = [NSString stringWithFormat:@"Cell %d",indexPath.row];
     
     progressCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
-        cell = [[progressCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier downloadURL:[NSURL URLWithString:[toDownloadFiles objectAtIndex:indexPath.row]]];
+        cell = [[progressCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier downloadURL:[NSURL URLWithString:[[toDownloadFiles objectAtIndex:indexPath.row] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]];
 
         [cell startWithDelegate:self];
     }
@@ -122,21 +121,16 @@
 -(void)progressCellDownloadProgress:(float)progress Percentage:(NSInteger)percentage ProgressCell:(progressCell *)cell{
     
     cell.textLabel.text = [NSString stringWithFormat:@"%d %%",percentage];
+    [cell setNeedsLayout];
     
 }
 -(void)progressCellDownloadFinished:(NSData*)fileData ProgressCell:(progressCell *)cell{
     
-    if(DELETE_DONE) {
-        NSIndexPath* indexPath = [self.tableView indexPathForCell:cell];
-        [toDownloadFiles removeObjectAtIndex:indexPath.row];
-
-        [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationRight];
-    }
-    else {
-        cell.textLabel.text = @"Finished";
-    }
+    cell.textLabel.text = @"Finished";
+    
+    [cell setNeedsLayout];
 }
 -(void)progressCellDownloadFail:(NSError*)error ProgressCell:(progressCell *)cell{
-    
+    NSLog(@"%@",[error localizedDescription]);
 }
 @end
